@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Schema as SchemaMongoose } from 'mongoose';
+import { Document, Schema as SchemaMongoose } from 'mongoose';
 
-import { User } from './user.schema';
-import { Post } from './post.schema';
+import { User } from '@/user/schema/user.schema';
+import { Post } from '@/post/schema/post.schema';
 
-export type SaveDocument = HydratedDocument<Save>;
+export type SaveDocument = Save & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Save {
   @Prop({
     type: SchemaMongoose.Types.ObjectId,

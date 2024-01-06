@@ -1,13 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Schema as SchemaMongoose } from 'mongoose';
+import { Document, Schema as SchemaMongoose } from 'mongoose';
 
-import { User } from './user.schema';
-import { Comment } from './comment.schema';
-import { Save } from './save.schema';
+import { User } from '@/user/schema/user.schema';
+import { Comment } from '@/comment/schema/comment.schema';
+import { Save } from '@/schema/save.schema';
 
-export type PostDocument = HydratedDocument<Post>;
+export type PostDocument = Post & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Post {
   @Prop({ required: true })
   content: string;
@@ -45,7 +45,7 @@ export class Post {
   })
   saves: Save[];
 
-  @Prop({ default: [] })
+  @Prop({ type: [String], default: [] })
   tags: string[];
 
   @Prop({ default: '' })
