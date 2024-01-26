@@ -22,7 +22,7 @@ const getCache = (key: string) => cache[key];
 const setCache = (key: string, value: Cache) => (cache[key] = value);
 const delCache = (key: string) => delete cache[key];
 
-const generateCode = (email: string) => {
+const generateCache = (email: string) => {
   const code = crypto.randomInt(100000, 999999).toString();
   const timestamp = Date.now();
   const expireAt = Date.now() + 10 * 60 * 1000; // 10 minutes in milliseconds
@@ -30,10 +30,10 @@ const generateCode = (email: string) => {
 };
 
 const storeCache = (email: string) => {
-  const setCode = generateCode(email);
-  setCache(email, setCode);
+  const cache = generateCache(email);
+  setCache(email, cache);
   setTimeout(() => delCache(email), 10 * 60 * 1000); // 10 minutes in milliseconds
-  return setCode.code;
+  return cache.code;
 };
 
 @Injectable()
@@ -107,9 +107,7 @@ export class AuthService {
     const hashPassword = await argon2.hash(password);
 
     // Update password
-    const updatedUser = await this.userModel.updateUser(user._id.toString(), {
-      password: hashPassword
-    });
+    const updatedUser = await this.userModel.updateUser(user.id, { password: hashPassword });
     if (!updatedUser) throw new BadRequestException('Something went wrong');
 
     // Return success message
@@ -144,12 +142,7 @@ export class AuthService {
     const tokens = createTokenPair({ _id: user._id, email: user.email }, publicKey, privateKey);
 
     // Save token pair
-    const key = await this.keyModel.createKeyToken(
-      user._id.toString(),
-      publicKey,
-      privateKey,
-      tokens.refreshToken
-    );
+    const key = await this.keyModel.createKeyToken(user.id, publicKey, privateKey, tokens.refreshToken);
     if (!key) throw new BadRequestException('Something went wrong');
 
     // Return token pair
@@ -200,12 +193,7 @@ export class AuthService {
     const tokens = createTokenPair({ _id: newUser._id, email: newUser.email }, publicKey, privateKey);
 
     // Save token pair
-    const key = await this.keyModel.createKeyToken(
-      newUser._id.toString(),
-      publicKey,
-      privateKey,
-      tokens.refreshToken
-    );
+    const key = await this.keyModel.createKeyToken(newUser.id, publicKey, privateKey, tokens.refreshToken);
     if (!key) throw new BadRequestException('Something went wrong');
 
     // Return token pair
